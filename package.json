@@ -1,0 +1,20 @@
+{
+  "name": "mappyjs",
+  "version": "1.0.0",
+  "description": "A Javascript implementation of the RuneScape engine to modify maps.",
+  "main": "app.js",
+  "scripts": {
+      "start": "webpack-dev-server --port 3000",
+      "build": "NODE_ENV=production webpack"
+  },
+  "author": "Rebecca",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.78.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.2"
+  },
+  "dependencies": {
+    "three": "^0.151.3"
+  }
+}
