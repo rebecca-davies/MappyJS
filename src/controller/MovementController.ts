@@ -2,12 +2,12 @@ import * as THREE from 'three';
 
 export default class MovementController {
 
-    moveState = [false, false, false, false];
-    moveSpeed = 0.1;
+    moveState: Array<boolean> = [false, false, false, false];
+    moveSpeed: number = 0.1;
 
-    update(camera) {
-        let direction = new THREE.Vector3();
-        let speed = 1.0;
+    update(camera: THREE.PerspectiveCamera) {
+        let direction: THREE.Vector3 = new THREE.Vector3();
+        let speed: number = 1.0;
         if(this.moveState[0]) direction.z -= speed;
         if(this.moveState[1]) direction.z += speed;
         if(this.moveState[2]) direction.x -= speed;

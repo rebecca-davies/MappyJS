@@ -1,17 +1,17 @@
 import Floor from "../constuct/Floor";
 
-var bufferOffset = 0;
 var Buffer = require('buffer/').Buffer;
-export var floors = Array(500).fill(new Floor())
+var bufferOffset: number = 0;
+export var floors: Array<Floor> = Array(500).fill(new Floor())
 
 export default class FloorLoader {
 
-   async load(file) {
+   async load() {
         bufferOffset = 0;
-        await read(file);
+        await read();
    }
 
-   static read(buffer) {
+   static read(buffer: Buffer) {
         var floor = new Floor();
         while(true) {
             const opcode = buffer.readUInt8(bufferOffset++);
@@ -26,7 +26,7 @@ export default class FloorLoader {
 
 }
 
-async function read(file) {
+async function read() {
     const byteArray = await FloorCache.getByteArray('data/flo.dat');
     const buffer = new Buffer(byteArray);
     const cacheSize = buffer.readInt16BE(bufferOffset+=2);
@@ -35,7 +35,7 @@ async function read(file) {
 
 const FloorCache = {
     cache: new Map(),
-    async getByteArray(url) {
+    async getByteArray(url: string) {
         if (this.cache.has(url)) {
             return this.cache.get(url);
         }

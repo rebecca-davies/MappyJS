@@ -5,14 +5,22 @@ import MapLoader from './map/loader/MapLoader';
 import FloorLoader from './map/loader/FloorLoader';
 import MovementController from './controller/MovementController';
 import { MIDDLE_MOUSE_BUTTON, FOV, ASPECT_RATIO } from './Constants';
+import { tiles } from './map/loader/MapLoader';
 
 class App {
+
+    floorLoader: FloorLoader = new FloorLoader();
+    mapLoader: MapLoader = new MapLoader();
+    camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(FOV, ASPECT_RATIO, 0.1, 1000);
+    scene: THREE.Scene = new THREE.Scene().add(new THREE.AmbientLight(0x404040, 5));
+    renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
+    movementController: MovementController = new MovementController();
+    builder: MapBuilder = new MapBuilder(this.scene);
+    controls: PointerLockControls = new PointerLockControls(this.camera, this.renderer.domElement);
     
     constructor() {
         this.init();
-        this.floorLoader = new FloorLoader();
         this.floorLoader.load();
-        this.mapLoader = new MapLoader();
         this.mapLoader.load(624);
         this.initPointerLockControls();
         this.initMovementHandler();
@@ -21,18 +29,12 @@ class App {
     }
 
     init() {
-        this.camera = new THREE.PerspectiveCamera(FOV, ASPECT_RATIO, 0.1, 1000);
-        this.scene = new THREE.Scene().add(new THREE.AmbientLight(0x404040, 5));
-        this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.movementController = new MovementController()
         document.body.appendChild(this.renderer.domElement);
-        this.builder = new MapBuilder(this.scene);
     }
 
     initPointerLockControls() {
-        this.controls = new PointerLockControls(this.camera, this.renderer.domElement);
         document.body.addEventListener('mousedown', (event) => {
             switch(event.button) {
                 case MIDDLE_MOUSE_BUTTON:
@@ -79,6 +81,7 @@ class App {
 
     animate() {
         this.renderer.setAnimationLoop(() => {
+            console.log(tiles);
             this.movementController.update(this.camera);
             this.renderer.render(this.scene, this.camera);
         });

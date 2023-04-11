@@ -1,6 +1,7 @@
 const path = require('path');
 
 module.exports = {
+  mode: 'development',
   entry: './src/app.js',
   cache: false,
   output: {
@@ -8,7 +9,19 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     
   },
-  mode: 'development',
+  resolve: {
+    extensions: [".ts", ".tsx", ".js"],
+    extensionAlias: {
+     ".js": [".js", ".ts"],
+     ".cjs": [".cjs", ".cts"],
+     ".mjs": [".mjs", ".mts"]
+    }
+  },
+  module: {
+    rules: [
+      { test: /\.([cm]?ts|tsx)$/, loader: "ts-loader" }
+    ]
+  },
   devServer: {
     static: {
       directory: path.join(__dirname, 'dist'),

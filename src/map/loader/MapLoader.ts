@@ -1,29 +1,27 @@
 import Tile from "../constuct/Tile";
 
-var bufferOffset = 0;
 var Buffer = require('buffer/').Buffer;
-export var tiles = Array(4).fill().map(() => Array(64).fill().map(() => Array(64).fill(new Tile())));
+var bufferOffset: number = 0;
+export var tiles: Array<Array<Array<Tile>>> = Array(4).fill(null).map(() => Array(64).fill(null).map(() => Array(64).fill(new Tile())));
 
 export default class MapLoader {
 
-    constructor() {
-        this.loaded = false;
-    }
+    loaded: boolean = false;
 
-    async load(map) {
+    async load(map: number) {
         bufferOffset = 0;
         await read(map);
         this.loaded = true;
     }
 }
 
-async function read(map) {
-    const byteArray = await MapDataCache.getByteArray('data/maps/'+map+'.dat');
+async function read(map: number) {
+    const byteArray = await MapDataCache.getByteArray(`data/maps/${map}.dat`);
     const buffer = new Buffer(byteArray);
     handleTiles(buffer);
 }
 
-function handleTiles(buffer) {
+function handleTiles(buffer: Buffer) {
     for(let y = 0; y < 4; y++) {
         for(let x = 0; x < 64; x++) {
             for(let z = 0; z < 64; z++) {
@@ -33,14 +31,14 @@ function handleTiles(buffer) {
     }
 }
 
-function readTile(tile, buffer) {
+function readTile(tile: Tile, buffer: Buffer) {
     while(true) {
-        const type = buffer.readUInt8(bufferOffset++);
+        const type: number = buffer.readUInt8(bufferOffset++);
         if(type == 0) {
             break;
         }
         if(type == 1) {
-            const height = buffer.readUInt8(bufferOffset++);
+            const height: number = buffer.readUInt8(bufferOffset++);
             tile.cacheHeight = height;
             tile.height = height;
             break;
@@ -61,7 +59,7 @@ function readTile(tile, buffer) {
 
 const MapDataCache = {
     cache: new Map(),
-    async getByteArray(url) {
+    async getByteArray(url: string) {
         if (this.cache.has(url)) {
             return this.cache.get(url);
         }
