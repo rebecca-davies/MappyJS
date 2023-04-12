@@ -1,37 +1,54 @@
 import Floor from "../constuct/Floor";
+import "tsjagbuff";
 
-var Buffer = require('buffer/').Buffer;
 var bufferOffset: number = 0;
 export var floors: Array<Floor> = Array(500).fill(new Floor())
 
 export default class FloorLoader {
 
    async load() {
-        bufferOffset = 0;
-        await read();
+        
+        await this.read();
    }
 
-   static read(buffer: Buffer) {
+   static readData(buffer: DataView) {
+    
         var floor = new Floor();
         while(true) {
-            const opcode = buffer.readUInt8(bufferOffset++);
+            const opcode = buffer.g1();
             switch(opcode) {
                 case 0:
                     return floor;
                 case 1:
+                    floor.rgbColour = buffer.g3();
+                    break;
+                case 2:
+                    floor.textureId = buffer.g1();
+                    break;
+                case 3:
+                case 5:
+                    floor.occlude = false;
+                    break;
+                case 6:
+                    floor.name = buffer.gjstr();
+                    break;
+                case 7:
+                    let rgb = buffer.g3();
                     break;
             }
         }
    }
 
+   async read() {
+    const byteArray = await FloorCache.getByteArray(`data/flo.dat`);
+    const buffer: DataView = new DataView(byteArray);
+    const cacheSize: number = buffer.g2();
+    floors = Array.from({length: cacheSize}, () => FloorLoader.readData(buffer));
+}
 }
 
-async function read() {
-    const byteArray = await FloorCache.getByteArray('data/flo.dat');
-    const buffer = new Buffer(byteArray);
-    const cacheSize = buffer.readInt16BE(bufferOffset+=2);
-    floors = Array.from({ length: cacheSize}, () => FloorLoader.read(buffer))
-}
+
+
 
 const FloorCache = {
     cache: new Map(),
@@ -41,8 +58,7 @@ const FloorCache = {
         }
         const response = await window.fetch(url);
         const arrayBuffer = await response.arrayBuffer();
-        const byteArray = new Int8Array(arrayBuffer);
-        this.cache.set(url, byteArray);
-        return byteArray;
+        this.cache.set(url, arrayBuffer);
+        return arrayBuffer;
     }
 };

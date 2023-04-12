@@ -1,7 +1,6 @@
 import Tile from "../constuct/Tile";
+import "tsjagbuff";
 
-var Buffer = require('buffer/').Buffer;
-var bufferOffset: number = 0;
 export var tiles: Array<Array<Array<Tile>>> = Array(4).fill(null).map(() => Array(64).fill(null).map(() => Array(64).fill(new Tile())));
 
 export default class MapLoader {
@@ -9,7 +8,6 @@ export default class MapLoader {
     loaded: boolean = false;
 
     async load(map: number) {
-        bufferOffset = 0;
         await read(map);
         this.loaded = true;
     }
@@ -17,11 +15,11 @@ export default class MapLoader {
 
 async function read(map: number) {
     const byteArray = await MapDataCache.getByteArray(`data/maps/${map}.dat`);
-    const buffer = new Buffer(byteArray);
+    const buffer: DataView = new DataView(byteArray);
     handleTiles(buffer);
 }
 
-function handleTiles(buffer: Buffer) {
+function handleTiles(buffer: DataView) {
     for(let y = 0; y < 4; y++) {
         for(let x = 0; x < 64; x++) {
             for(let z = 0; z < 64; z++) {
@@ -31,21 +29,21 @@ function handleTiles(buffer: Buffer) {
     }
 }
 
-function readTile(tile: Tile, buffer: Buffer) {
+function readTile(tile: Tile, buffer: DataView) {
     while(true) {
-        const type: number = buffer.readUInt8(bufferOffset++);
+        const type: number = buffer.g1();
         if(type == 0) {
             break;
         }
         if(type == 1) {
-            const height: number = buffer.readUInt8(bufferOffset++);
+            const height: number = buffer.g1();
             tile.cacheHeight = height;
             tile.height = height;
             break;
         }
         if(type <= 49) {
             tile.opcode = type;
-            tile.overlay = buffer.readUInt8(bufferOffset++);
+            tile.overlay = buffer.g1();
             tile.overlayPath = Math.floor((type - 2) / 4);
             tile.overlayRotation = type - 2 & 3;
         } else if(type <= 81) {
@@ -65,8 +63,7 @@ const MapDataCache = {
         }
         const response = await window.fetch(url);
         const arrayBuffer = await response.arrayBuffer();
-        const byteArray = new Int8Array(arrayBuffer);
-        this.cache.set(url, byteArray);
-        return byteArray;
+        this.cache.set(url, arrayBuffer);
+        return arrayBuffer;
     }
 };

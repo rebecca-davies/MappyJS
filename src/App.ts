@@ -81,7 +81,6 @@ class App {
 
     animate() {
         this.renderer.setAnimationLoop(() => {
-            console.log(tiles);
             this.movementController.update(this.camera);
             this.renderer.render(this.scene, this.camera);
         });
