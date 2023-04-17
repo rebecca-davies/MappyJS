@@ -1,54 +1,52 @@
 import Floor from "../constuct/Floor";
-import "tsjagbuff";
+import { JagBuf } from "jagbuf";
 
-var bufferOffset: number = 0;
-export var floors: Array<Floor> = Array(500).fill(new Floor())
+export var floors: Array<Floor> = [];
+for (let i = 0; i < 500; i++) {
+    floors.push(new Floor());
+}
 
 export default class FloorLoader {
+    async load() {
+        await read();
+        return true;
+    }
+}
 
-   async load() {
-        
-        await this.read();
-   }
-
-   static readData(buffer: DataView) {
-    
-        var floor = new Floor();
-        while(true) {
-            const opcode = buffer.g1();
-            switch(opcode) {
-                case 0:
-                    return floor;
-                case 1:
-                    floor.rgbColour = buffer.g3();
-                    break;
-                case 2:
-                    floor.textureId = buffer.g1();
-                    break;
-                case 3:
-                case 5:
-                    floor.occlude = false;
-                    break;
-                case 6:
-                    floor.name = buffer.gjstr();
-                    break;
-                case 7:
-                    let rgb = buffer.g3();
-                    break;
-            }
-        }
-   }
-
-   async read() {
+async function read() {
     const byteArray = await FloorCache.getByteArray(`data/flo.dat`);
-    const buffer: DataView = new DataView(byteArray);
+    const buffer: JagBuf = new JagBuf(byteArray);
     const cacheSize: number = buffer.g2();
-    floors = Array.from({length: cacheSize}, () => FloorLoader.readData(buffer));
+    for(var i = 0; i < cacheSize; i++) {
+        readData(floors[i], buffer);
+    }
 }
+
+function readData(floor: Floor, buffer: JagBuf) {
+    while(true) {
+        const type: number = buffer.g1();
+        if(type == 0) {
+            break;
+        }
+        if(type == 1) {
+            const rgb = buffer.g3();
+            floor.rgbColour = rgb;
+        }
+        if(type == 2) {
+            const textureId = buffer.g1();
+            floor.textureId = textureId;
+        }
+        if(type == 3 || type == 5) {
+            floor.occlude = false;
+        }
+        if(type == 6) {
+            floor.name = buffer.gjstr();
+        }
+        if(type == 7) {
+            buffer.g3();
+        }
+    }
 }
-
-
-
 
 const FloorCache = {
     cache: new Map(),

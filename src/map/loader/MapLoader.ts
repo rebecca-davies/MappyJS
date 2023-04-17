@@ -1,35 +1,32 @@
 import Tile from "../constuct/Tile";
-import "tsjagbuff";
+import { JagBuf } from "jagbuf";
 
 export var tiles: Array<Array<Array<Tile>>> = Array(4).fill(null).map(() => Array(64).fill(null).map(() => Array(64).fill(new Tile())));
-
 export default class MapLoader {
-
-    loaded: boolean = false;
-
     async load(map: number) {
         await read(map);
-        this.loaded = true;
+        return true;
     }
 }
 
 async function read(map: number) {
     const byteArray = await MapDataCache.getByteArray(`data/maps/${map}.dat`);
-    const buffer: DataView = new DataView(byteArray);
+    const buffer: JagBuf = new JagBuf(byteArray);
     handleTiles(buffer);
 }
 
-function handleTiles(buffer: DataView) {
-    for(let y = 0; y < 4; y++) {
+function handleTiles(buffer: JagBuf) {
         for(let x = 0; x < 64; x++) {
             for(let z = 0; z < 64; z++) {
-                readTile(tiles[y][x][z], buffer);
+                const tile = new Tile();
+                readTile(tile, buffer);
+                tiles[0][x][z] = tile;
+                console.log(tile);
             }
         }
-    }
 }
 
-function readTile(tile: Tile, buffer: DataView) {
+function readTile(tile: Tile, buffer: JagBuf) {
     while(true) {
         const type: number = buffer.g1();
         if(type == 0) {
@@ -51,8 +48,7 @@ function readTile(tile: Tile, buffer: DataView) {
         } else {
             tile.underlay = type - 81;
         }
-        break;
-    }
+    } 
 }
 
 const MapDataCache = {

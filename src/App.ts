@@ -15,17 +15,19 @@ class App {
     scene: THREE.Scene = new THREE.Scene().add(new THREE.AmbientLight(0x404040, 5));
     renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer();
     movementController: MovementController = new MovementController();
-    builder: MapBuilder = new MapBuilder(this.scene);
+    builder: MapBuilder = null;
     controls: PointerLockControls = new PointerLockControls(this.camera, this.renderer.domElement);
     
     constructor() {
         this.init();
-        this.floorLoader.load();
-        this.mapLoader.load(624);
-        this.initPointerLockControls();
-        this.initMovementHandler();
-        this.initResizeHandler();
-        this.animate();
+        Promise.all([this.floorLoader.load(), this.mapLoader.load(624)])
+        .then(() => {
+            this.builder = new MapBuilder(this.scene);
+            this.initPointerLockControls();
+            this.initMovementHandler();
+            this.initResizeHandler();
+            this.animate();
+        });
     }
 
     init() {
