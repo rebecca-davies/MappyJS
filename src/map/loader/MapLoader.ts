@@ -1,7 +1,9 @@
 import Tile from "../constuct/Tile";
 import { JagBuf } from "jagbuf";
+import { ungzip } from "pako";
 
 export var tiles: Array<Array<Array<Tile>>> = Array(4).fill(null).map(() => Array(64).fill(null).map(() => Array(64).fill(new Tile())));
+
 export default class MapLoader {
     async load(map: number) {
         await read(map);
@@ -11,19 +13,20 @@ export default class MapLoader {
 
 async function read(map: number) {
     const byteArray = await MapDataCache.getByteArray(`data/maps/${map}.dat`);
+    console.log(byteArray);
     const buffer: JagBuf = new JagBuf(byteArray);
     handleTiles(buffer);
+    console.log(tiles);
 }
 
 function handleTiles(buffer: JagBuf) {
+    for(let z = 0; z < 64; z++) {
         for(let x = 0; x < 64; x++) {
-            for(let z = 0; z < 64; z++) {
-                const tile = new Tile();
-                readTile(tile, buffer);
-                tiles[0][x][z] = tile;
-                console.log(tile);
-            }
+            const tile = new Tile();
+            readTile(tile, buffer);
+            tiles[0][x][z] = tile;
         }
+    }
 }
 
 function readTile(tile: Tile, buffer: JagBuf) {
@@ -33,7 +36,7 @@ function readTile(tile: Tile, buffer: JagBuf) {
             break;
         }
         if(type == 1) {
-            const height: number = buffer.g1();
+            let height: number = buffer.g1();
             tile.cacheHeight = height;
             tile.height = height;
             break;
@@ -48,7 +51,7 @@ function readTile(tile: Tile, buffer: JagBuf) {
         } else {
             tile.underlay = type - 81;
         }
-    } 
+    }
 }
 
 const MapDataCache = {
@@ -58,7 +61,8 @@ const MapDataCache = {
             return this.cache.get(url);
         }
         const response = await window.fetch(url);
-        const arrayBuffer = await response.arrayBuffer();
+        let arrayBuffer = await response.arrayBuffer(); 
+        arrayBuffer = ungzip(new Uint8Array(arrayBuffer));
         this.cache.set(url, arrayBuffer);
         return arrayBuffer;
     }

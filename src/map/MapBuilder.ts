@@ -16,13 +16,13 @@ export default class MapBuilder {
     for(let x = 0; x < 64; x++) {
       for(let z = 0; z < 64; z ++) {
         let faceIndex = (z * 64 + x) * 2;
-        if(tiles[0][x][z].overlay != 0) {
-          mapGeometry.faces[faceIndex].vertexColors = [new THREE.Color(floors[tiles[0][x][z].overlay].rgbColour), new THREE.Color(floors[tiles[0][x][z].overlay].rgbColour), new THREE.Color(floors[tiles[0][x][z].overlay].rgbColour)];
-          mapGeometry.faces[faceIndex + 1].vertexColors = [new THREE.Color(floors[tiles[0][x][z].overlay].rgbColour), new THREE.Color(floors[tiles[0][x][z].overlay].rgbColour), new THREE.Color(floors[tiles[0][x][z].overlay].rgbColour)];
-        }
         if(tiles[0][x][z].underlay != 0) {
           mapGeometry.faces[faceIndex].vertexColors = [new THREE.Color(floors[tiles[0][x][z].underlay].rgbColour), new THREE.Color(floors[tiles[0][x][z].underlay].rgbColour), new THREE.Color(floors[tiles[0][x][z].underlay].rgbColour)];
           mapGeometry.faces[faceIndex + 1].vertexColors = [new THREE.Color(floors[tiles[0][x][z].underlay].rgbColour), new THREE.Color(floors[tiles[0][x][z].underlay].rgbColour), new THREE.Color(floors[tiles[0][x][z].underlay].rgbColour)];
+        }
+        if(tiles[0][x][z].overlay != 0) {
+          mapGeometry.faces[faceIndex].vertexColors = [new THREE.Color(floors[tiles[0][x][z].overlay].rgbColour), new THREE.Color(floors[tiles[0][x][z].overlay].rgbColour), new THREE.Color(floors[tiles[0][x][z].overlay].rgbColour)];
+          mapGeometry.faces[faceIndex + 1].vertexColors = [new THREE.Color(floors[tiles[0][x][z].overlay].rgbColour), new THREE.Color(floors[tiles[0][x][z].overlay].rgbColour), new THREE.Color(floors[tiles[0][x][z].overlay].rgbColour)];
         }
       }
     }
